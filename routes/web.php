@@ -48,7 +48,7 @@ Route::prefix('employee')->name('employee.')->middleware('employee')->group(func
 });
 
 
-// CRUD Admin
+// CRUD Admin 
 Route::middleware(['auth.admin'])->prefix('admin/manage-admins')->name('admin.manage-admins.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
     Route::get('/create', [AdminController::class, 'create'])->name('create');
@@ -77,3 +77,6 @@ Route::middleware(['auth.admin'])->prefix('admin/manage-customers')->name('admin
     Route::put('/{id}', [CustomerController::class, 'update'])->name('update');
     Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('destroy');
 });
+
+
+// à nhon xề ố
