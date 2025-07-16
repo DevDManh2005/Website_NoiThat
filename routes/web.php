@@ -77,6 +77,3 @@ Route::middleware(['auth.admin'])->prefix('admin/manage-customers')->name('admin
     Route::put('/{id}', [CustomerController::class, 'update'])->name('update');
     Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('destroy');
 });
-
-
-// à nhon xề ố
