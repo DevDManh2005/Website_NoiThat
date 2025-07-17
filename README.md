@@ -13,13 +13,14 @@
 ### Bước 1: Cài đặt XAMPP
 Tải và cài XAMPP 8.2.12 tại:  
 🔗 https://www.apachefriends.org/download.html
-
+Bật terminal cmd ở trong file code sau đó gõ php -v 
 ---
 
 ### Bước 2: Cài đặt Composer
 Tải và cài Composer tại:  
 🔗 https://getcomposer.org/download/
 
+Bật terminal cmd ở trong file code sau đó dán composer install
 ---
 
 ### Bước 3: Kích hoạt các PHP extension cần thiết

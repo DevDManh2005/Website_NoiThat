@@ -12,46 +12,26 @@
 
     <style>
         body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #f8f9fa;
+            margin: 0;
             font-family: 'Segoe UI', sans-serif;
-        }
-
-        .main-wrapper {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
+            background-color: #f8f9fa;
         }
 
         .header {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
             background-color: #ffffff;
             border-bottom: 1px solid #dee2e6;
             padding: 10px 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-        }
-
-        .header .left {
-            display: flex;
             align-items: center;
-            gap: 15px;
         }
 
-        .header h4 {
-            margin: 0;
-            font-weight: bold;
-        }
-
-        .toggle-btn {
-            border: none;
-            background: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            color: #212529;
+        .main-wrapper {
+            display: flex;
+            height: calc(100vh - 60px);
         }
 
         .sidebar {
@@ -59,14 +39,20 @@
             background-color: #ffffff;
             border-right: 1px solid #dee2e6;
             padding-top: 1rem;
+            overflow-y: auto;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
             flex-shrink: 0;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
 
         .sidebar.collapsed {
-            width: 0;
-            padding: 0;
-            overflow: hidden;
+            width: 70px;
+        }
+
+        .sidebar.collapsed .text-label {
+            display: none;
         }
 
         .sidebar a {
@@ -75,13 +61,21 @@
             align-items: center;
             padding: 10px 20px;
             text-decoration: none;
-            transition: all 0.2s ease-in-out;
             border-radius: 5px;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
 
         .sidebar a i {
             margin-right: 10px;
-            font-size: 1.1rem;
+        }
+
+        .sidebar.collapsed a i {
+            margin: 0 auto;
+        }
+
+        .sidebar.collapsed a {
+            justify-content: center;
         }
 
         .sidebar a:hover,
@@ -98,53 +92,31 @@
             text-transform: uppercase;
         }
 
+        .nav-section.collapsed {
+            display: none;
+        }
+
         .content {
             flex-grow: 1;
-            padding: 30px;
             overflow-y: auto;
-            transition: all 0.3s ease;
+            padding: 30px;
         }
 
-        /* Optional: Shift content when sidebar is collapsed */
-        .sidebar.collapsed + .content {
-            padding-left: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                z-index: 999;
-                height: 100%;
-                left: 0;
-                top: 60px;
-                background-color: #fff;
-                border-right: 1px solid #dee2e6;
-            }
-
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar:not(.collapsed) {
-                transform: translateX(0);
-            }
-
-            .content {
-                padding: 20px;
-            }
+        .toggle-btn {
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #212529;
         }
     </style>
 </head>
-
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="left">
-            <h4><i class="bi bi-speedometer2 me-2"></i>Trang Quản Trị</h4>
-             <button class="toggle-btn" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
+        <div class="left d-flex align-items-center gap-3">
+            <h4 class="m-0"><i class="bi bi-speedometer2 me-2"></i>Trang Quản Trị</h4>
+            <button class="toggle-btn" id="sidebarToggle"><i class="bi bi-list"></i></button>
         </div>
         <div class="right d-flex align-items-center gap-2">
             <a href="{{ url('/') }}" class="btn btn-outline-primary">
@@ -159,23 +131,61 @@
         </div>
     </div>
 
-    <!-- Main -->
+    <!-- Wrapper -->
     <div class="main-wrapper">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <div class="nav-section">Quản lý</div>
-            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-house-door"></i> Dashboard
+            <div class="nav-section text-label">Quản lý</div>
+            <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active fw-bold bg-light' : '' }}">
+                <i class="bi bi-house-door"></i> <span class="text-label">Dashboard</span>
             </a>
-            <a href="{{ route('admin.manage-admins.index') }}" class="{{ request()->routeIs('admin.manage-admins.*') ? 'active' : '' }}">
-                <i class="bi bi-person-badge"></i> Quản lý Admins
-            </a>
-            <a href="{{ route('admin.manage-employees.index') }}" class="{{ request()->routeIs('admin.manage-employees.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> Quản Lý Nhân viên
-            </a>
-            <a href="{{ route('admin.manage-customers.index') }}" class="{{ request()->routeIs('admin.manage-customers.*') ? 'active' : '' }}">
-                <i class="bi bi-person-circle"></i> Quản Lý Khách hàng
-            </a>
+            <hr>
+            <!-- Quản lý tài khoản -->
+            <div class="accordion" id="accountAccordion">
+                <div class="accordion-item border-0">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button bg-white px-3 py-2 shadow-none rounded {{ request()->is('admin/manage-*') ? '' : 'collapsed' }}"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#accountCollapse">
+                            <i class="bi bi-person-gear me-2"></i> <span class="text-label">Quản lý tài khoản</span>
+                        </button>
+                    </h2>
+                    <div id="accountCollapse" class="accordion-collapse collapse {{ request()->is('admin/manage-*') ? 'show' : '' }}">
+                        <div class="accordion-body py-1 px-3">
+                            <a href="{{ route('admin.manage-admins.index') }}" class="{{ request()->routeIs('admin.manage-admins.*') ? 'active fw-bold bg-light' : '' }}">
+                                <i class="bi bi-person-badge"></i> <span class="text-label">Admins</span>
+                            </a>
+                            <a href="{{ route('admin.manage-employees.index') }}" class="{{ request()->routeIs('admin.manage-employees.*') ? 'active fw-bold bg-light' : '' }}">
+                                <i class="bi bi-people"></i> <span class="text-label">Nhân viên</span>
+                            </a>
+                            <a href="{{ route('admin.manage-customers.index') }}" class="{{ request()->routeIs('admin.manage-customers.*') ? 'active fw-bold bg-light' : '' }}">
+                                <i class="bi bi-person-circle"></i> <span class="text-label">Khách hàng</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quản lý cửa hàng -->
+            <div class="accordion mt-3" id="shopAccordion">
+                <div class="accordion-item border-0">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button bg-white px-3 py-2 shadow-none rounded {{ request()->routeIs('admin.categories.*') || request()->routeIs('admin.products.*') ? '' : 'collapsed' }}"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#shopCollapse">
+                            <i class="bi bi-shop-window me-2"></i> <span class="text-label">Quản lý cửa hàng</span>
+                        </button>
+                    </h2>
+                    <div id="shopCollapse" class="accordion-collapse collapse {{ request()->routeIs('admin.categories.*') || request()->routeIs('admin.products.*') ? 'show' : '' }}">
+                        <div class="accordion-body py-1 px-3">
+                            <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active fw-bold bg-light' : '' }}">
+                                <i class="bi bi-tags"></i> <span class="text-label">Danh mục</span>
+                            </a>
+                            <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active fw-bold bg-light' : '' }}">
+                                <i class="bi bi-box-seam"></i> <span class="text-label">Sản phẩm</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Content -->
@@ -190,7 +200,7 @@
         const toggleBtn = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
 
-        toggleBtn.addEventListener('click', function () {
+        toggleBtn?.addEventListener('click', function () {
             sidebar.classList.toggle('collapsed');
         });
     </script>
